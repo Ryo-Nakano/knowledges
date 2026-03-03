@@ -1,18 +1,53 @@
 ---
 name: subagent-creator
-description: Helps users create, configure, and manage custom subagents for Gemini CLI. Use this skill when a user asks to create or configure a subagent, an agent, or a specialized agent.
+description: Gemini CLI のカスタムサブエージェントの作成・設定・管理を支援する。ユーザーがサブエージェント、エージェント、または専門エージェントの作成・設定を求めたときに使用する。
 ---
+
 # Subagent Creator
 
-This skill guides the process of creating custom subagents for Gemini CLI.
+このSkillは、Gemini CLI でカスタムサブエージェントを作成・設定・管理するプロセスをガイドする。
 
-## About Subagents
+> **Note:** この情報は **2026年3月時点** の Gemini CLI 仕様に基づく。サブエージェントは実験的機能（experimental）であり、今後仕様が変更される可能性がある。最新情報は [公式ドキュメント](https://geminicli.com) や `/tools` コマンドで確認すること。
 
-Subagents are specialized expert agents defined as Markdown files with YAML frontmatter. They operate as tools for the main Gemini CLI agent.
+**重要：ユーザーとのすべてのやり取りは日本語で行うこと。**
 
-### 1. Prerequisites (Enable Agents)
+---
 
-First, verify or ask the user to verify that subagents are enabled in their `settings.json`. It must contain:
+## 前提条件
+
+このスキルを使用する前に、以下を満たしていること：
+
+- Gemini CLI がインストール済みであること
+- 基本的な Gemini CLI の操作（プロンプト入力、ファイル参照）ができること
+- YAML / Markdown の基本的な記法を理解していること
+
+---
+
+## サブエージェントとは
+
+サブエージェントは、YAMLフロントマターを持つMarkdownファイルとして定義された専門エージェント。メインのGemini CLIエージェントの「ツール」として機能し、特定のタスクに特化した処理を担う。
+
+> ⚠️ **重要：** サブエージェントは**YOLOモード**（ユーザーに確認を求めずにツールを実行するモード）で動作する。つまり、サブエージェントに与えたツールは**ユーザーの承認なしに実行される**。特に `run_shell_command` や `write_file` を含める場合は、システムプロンプト内で実行可能な操作を厳密に制約すること。
+
+> 💡 リモートエージェント（`kind: remote` + A2A プロトコル）もサポートされているが、本スキルではローカルエージェント（`kind: local`）に焦点を当てる。リモートエージェントについては `references/advanced_topics.md` を参照。
+
+---
+
+## ワークフロー
+
+以下のステップを順番に実行する。
+
+### Step 1: 環境確認・セットアップ
+
+まず、`read_file` または `run_shell_command` を使って以下を確認する。
+
+**⓪ 過去の知見の確認**
+
+`references/known_issues.md` を `read_file` で読み込み、過去に発生した問題と対策を把握する。
+
+**① settings.json の確認**
+
+`~/.gemini/settings.json` を確認し、以下が含まれているかチェックする：
 
 ```json
 {
@@ -22,47 +57,165 @@ First, verify or ask the user to verify that subagents are enabled in their `set
 }
 ```
 
-### 2. Location
+- **存在しない・設定がない場合：** ユーザーに許可を求め、`write_file` で設定を追加または作成する。
+- **すでに設定済みの場合：** その旨をユーザーに伝えてStep 2へ進む。
 
-Subagents can be defined in two locations:
-- **Project-level:** `.gemini/agents/*.md` (Shared with the project team)
-- **User-level:** `~/.gemini/agents/*.md` (Available across all projects)
+---
 
-### 3. File Structure
+### Step 2: 要件のヒアリング
 
-A subagent file requires YAML frontmatter followed by a Markdown body that serves as the System Prompt.
+以下の項目を順番に確認する。まとめて聞いても構わないが、ユーザーが混乱しないよう簡潔に質問する。
 
-**Example File (`.gemini/agents/security-auditor.md`):**
+| 項目 | 質問内容 |
+|---|---|
+| **目的** | このサブエージェントに何をさせたいか |
+| **使用ツール** | どのファイル操作・コマンド実行が必要か（後述のツール一覧を参考に提案する） |
+| **配置場所** | チームで共有したい → プロジェクトレベル／個人で使いたい → ユーザーレベル |
+
+**② agents/ ディレクトリと既存エージェントの確認**
+
+配置場所が確定したら、以下を確認する：
+
+- プロジェクトレベル：`.gemini/agents/`
+- ユーザーレベル：`~/.gemini/agents/`
+
+1. **ディレクトリの存在確認：**
+   - **すでに存在する場合：** 次のステップへ進む。
+   - **存在しない場合：** ユーザーに許可を求め `run_shell_command` で `mkdir -p` を実行して作成する。
+2. **既存エージェントの確認：** ディレクトリ内の既存 `.md` ファイルを `list_directory` で一覧し、**名前や機能が重複するエージェントがないか**確認する。重複が見つかった場合はユーザーに報告し、既存エージェントの更新か新規作成かを判断してもらう。
+
+---
+
+### Step 3: 任意項目の提案
+
+ヒアリングした**ユースケースをもとに**、以下の任意項目が有効かどうかを判断して提案する。ユーザーに押し付けず、「こういう理由でこの値を推奨します」と根拠を添えて提示する。
+
+| 項目 | 提案の判断基準 | 推奨値の例 |
+|---|---|---|
+| `model` | 高精度が必要 → 最新の Pro モデル。高速・低コスト重視 → 最新の Flash モデル。省略 → メインセッションのモデルを継承 | 2026年3月時点: `gemini-3.1-pro-preview`（複雑なタスク）/ `gemini-3-flash-preview`（高速処理）等 |
+| `temperature` | 出力の一貫性が重要な場合は低く、創造性が必要な場合は高く | コード解析: `0.2` / アイデア出し: `0.8` |
+| `max_turns` | 処理ステップが多い複雑なタスクの場合のみ増やす | デフォルト（15）で十分なケースが多い。20以上はループリスクあり |
+| `timeout_mins` | 長時間かかる処理が想定される場合のみ増やす | デフォルト（5分）。大規模なコード解析など時間のかかるタスクでは増やすことを検討 |
+
+---
+
+### Step 4: サブエージェント定義の生成
+
+ヒアリング内容と任意項目の提案をもとに、サブエージェントの定義ファイルを提案する。
+
+**ファイル構造：**
 
 ```markdown
 ---
-name: security-auditor
-description: Specialized in finding security vulnerabilities in code.
+name: [小文字・ハイフン区切りの識別子]
+description: [メインエージェントが「いつ使うか」を判断できる、具体的で明確な説明]
+kind: local
 tools:
-  - read_file
-  - grep_search
-model: gemini-2.5-pro
-temperature: 0.2
-max_turns: 10
+  - [必要なツールのみ列挙]
+model: [任意]
+temperature: [任意]
+max_turns: [任意]
+timeout_mins: [任意]
 ---
 
-You are a Security Auditor. Your job is to analyze code for potential vulnerabilities.
-Focus on SQL Injection, XSS, and hardcoded credentials.
+[システムプロンプト：このエージェントの役割・制約・振る舞いを明確に記述]
 ```
 
-### 4. Configuration Fields (YAML)
+**各フィールドの記載ルール：**
 
-- **`name`** (Required): Unique identifier used as the tool name. Use lowercase and hyphens.
-- **`description`** (Required): Describes the agent's expertise so the main agent knows when to "hire" it. Be clear and specific.
-- **`tools`** (Optional): List of tools this subagent can access (e.g., `read_file`, `grep_search`, `run_shell_command`, `write_file`).
-- **`model`** (Optional): Specific model to use (e.g., `gemini-2.5-pro`).
-- **`max_turns`** (Optional): Maximum conversation turns (default: 15).
+- **`name`：** 小文字とハイフンのみ使用（例: `security-auditor`）。スペース・大文字・記号は使わない。
+- **`description`：** メインエージェントがルーティング判断に使う。「〜を専門とする」「〜のときに使う」と具体的に書く。曖昧な説明はルーティング精度を下げる。**ユーザーが主に使うプロンプトの言語に合わせる**のが最も効果的（日本語でプロンプトを書くなら日本語で記述）。
+- **`kind`：** ローカルエージェントの場合は `local`（デフォルト値）。省略可能だが明示を推奨。
+- **`tools`：** 最小権限の原則で、必要なものだけ列挙する。**`tools` フィールドを省略するとツールなしになる**ため、必ず明示的に指定すること。`run_shell_command` は強力なため、本当に必要な場合のみ含める。YOLOモードで実行されることを常に意識する。
 
-### Workflow for Creating a Subagent
+> 💡 完成例は `references/examples.md` を参照。高度な機能（Hooks / MCP / A2A）については `references/advanced_topics.md` を参照。
 
-**Important Rule:** All communication and interactions with the user MUST be conducted in Japanese.
+**利用可能なツール一覧（`/tools` コマンドで確認可能）：**
 
-1. **Understand Requirements:** Ask the user what the subagent should do, what tools it needs, and where it should be stored (project or user level).
-2. **Ensure Settings are enabled:** Remind them that `settings.json` needs `"experimental": {"enableAgents": true}`.
-3. **Generate Definition:** Propose the YAML and system prompt based on their requirements.
-4. **Create File:** Ask for permission to create the `.md` file in the chosen location using the `write_file` tool.
+| ツール名 | 用途 | リスク |
+|---|---|---|
+| `read_file` | ファイルの読み取り | 低 |
+| `write_file` | ファイルの書き込み・作成 | **高**（確認なしで上書き） |
+| `replace` | ファイル内の文字列の置換・編集 | **高**（確認なしで変更） |
+| `grep_search` | ファイル内のテキスト検索 | 低 |
+| `glob` | パターンによるファイル検索 | 低 |
+| `list_directory` | ディレクトリ一覧の取得 | 低 |
+| `run_shell_command` | シェルコマンドの実行 | **最高**（任意のコマンドを実行可能） |
+| `google_web_search` | ウェブ検索 | 低 |
+| `web_fetch` | URLのコンテンツ取得 | 低 |
+| `save_memory` | エージェントのメモリへの情報保存 | 低 |
+| `ask_user` | ユーザーへの質問・確認 | 低（インタラクティブなエージェントに有用） |
+
+> 💡 MCP サーバーで追加したカスタムツールも `tools` フィールドで指定可能。詳細は `references/advanced_topics.md` を参照。
+
+---
+
+### Step 5: ファイルの作成
+
+提案した定義をユーザーに確認してもらい、承認を得てから `write_file` でファイルを作成する。
+
+- **同名ファイルが存在する場合：** 上書きの可否をユーザーに必ず確認してから実行する。
+
+作成後、ファイルパスをユーザーに伝える。
+
+---
+
+### Step 6: 動作確認の案内
+
+作成完了後、以下をユーザーに伝える：
+
+```
+Gemini CLI を再起動（または新しいセッションを開始）すると、
+サブエージェントが有効になります。
+
+確認方法：
+  /agents list             → 登録済みサブエージェントの一覧表示
+  /agents refresh          → エージェント設定の再読み込み
+  /agents enable <name>    → 特定のサブエージェントを有効化
+  /agents disable <name>   → 特定のサブエージェントを無効化
+```
+
+**動作テストの推奨手順：**
+
+1. `/agents list` でサブエージェントが登録されているか確認する
+2. サブエージェントの `description` に含まれるキーワードを使ったプロンプトを入力し、自動的にルーティングされるか確認する
+3. 期待通りのツールが使われているか、出力を確認する
+4. 想定外の入力に対する応答を確認する（エッジケース）
+
+---
+
+### トラブルシューティング
+
+サブエージェントが期待通りに動作しない場合、以下を確認する：
+
+| 症状 | 原因 | 対処法 |
+|---|---|---|
+| `/agents list` に表示されない | `enableAgents` が未設定 | `~/.gemini/settings.json` に `"experimental": {"enableAgents": true}` を追加 |
+| `/agents list` に表示されない | ファイルの配置場所が間違っている | `.gemini/agents/` または `~/.gemini/agents/` に配置されているか確認 |
+| YAML パースエラー | フロントマターの構文ミス | `---` の閉じ忘れ、インデントのずれ（スペース2つ）、コロン後のスペース漏れを確認 |
+| エージェントが呼び出されない | `description` が曖昧 | ユーザーのプロンプトとマッチしやすい具体的なキーワードを含める |
+| ツールが使えない | `tools` リストに記載漏れ | 必要なツール名を正確に追加（上記一覧参照） |
+| 処理が途中で止まる | `max_turns` が不足 | `max_turns` の値を増やす（ただし20以上はループリスクに注意） |
+| タイムアウトする | `timeout_mins` が不足 | 処理内容に応じて `timeout_mins` を増やす |
+
+---
+
+### 改善ループ
+
+このスキルの使用中にエラーや想定外の動作が発生した場合、以下を実行する：
+
+1. **原因を分析する：** 何が起きたか、なぜ起きたかを特定する
+2. **対策を検討する：** 再発を防ぐためにどう改善すべきかを考える
+3. **`references/known_issues.md` に追記する：** 以下のフォーマットで記録する
+
+```markdown
+### [問題の概要]
+
+- **発生日:** YYYY-MM-DD
+- **症状:** 何が起きたか
+- **原因:** なぜ起きたか
+- **対策:** どう解決したか / 今後どう防ぐか
+- **関連:** 影響を受けたファイルや設定
+```
+
+> 💡 ワークフロー開始時（Step 1）に `references/known_issues.md` を読み込み、過去の知見を活用すること。
