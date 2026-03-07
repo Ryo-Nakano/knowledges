@@ -22,9 +22,26 @@
 
 > **優先順位：** 同名スキルが両方に存在する場合、ワークスペース側が優先される。
 
+### 配置例：グローバルスキル
+
+```
+~/.gemini/antigravity/skills/auto-japanese-committer/SKILL.md
+~/.gemini/antigravity/skills/readable-code-checker/SKILL.md
+~/.gemini/antigravity/skills/spec-writer/SKILL.md
+~/.gemini/antigravity/skills/subagent-creator/SKILL.md
+```
+
+### 配置例：ワークスペーススキル
+
+```
+<project-root>/.agent/skills/knowledge-interviewer/SKILL.md
+<project-root>/.agent/skills/spec-driven-task-assistant/SKILL.md
+<project-root>/.agent/skills/task-execute-supporter/SKILL.md
+```
+
 ### ❌ 認識されない場所
 
-`knowledges/skills/` など、上記2つ以外のパスに配置してもAntigravityからは**認識されない**。
+上記2つ以外のパス（例：`knowledges/skills/` など）に配置してもAntigravityからは**認識されない**。
 
 ---
 
@@ -114,32 +131,6 @@ Always be constructive and provide specific examples for any suggested changes.
 
 ---
 
-## 既存の `knowledges/skills/` との関係
-
-`knowledges/skills/` 以下（`subagent-creator`, `readable-code-checker`, `spec-writer` など）は、**Gemini CLI 向けのスキル** として管理されているもの。
-
-Antigravity に対応させるには:
-
-1. **書き方（フォーマット）はそのまま使える** — `SKILL.md` の構成は完全互換
-2. **配置場所だけ変更が必要**
-
-### 移行手順
-
-```bash
-# プロジェクトスコープ（knowledges プロジェクト内でのみ使う場合）
-mkdir -p /home/syoiwatsu.linux/knowledges/.agent/skills/
-cp -r /home/syoiwatsu.linux/knowledges/skills/<スキル名>/ \
-      /home/syoiwatsu.linux/knowledges/.agent/skills/
-
-# グローバルスコープ（全プロジェクトで使う場合）
-mkdir -p ~/.gemini/antigravity/skills/
-cp -r /home/syoiwatsu.linux/knowledges/skills/<スキル名>/ \
-      ~/.gemini/antigravity/skills/
-```
-
----
-
 ## 関連リンク
 
 - [公式ドキュメント: Skills](https://antigravity.google/docs/skills)
-- 既存スキル: `/home/syoiwatsu.linux/knowledges/skills/`
