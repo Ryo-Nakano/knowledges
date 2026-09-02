@@ -104,6 +104,7 @@ Antigravity のカスタムスキル（`SKILL.md`）の新規作成を支援す�
 | [`documents/antigravity_skills_guide.md`](documents/antigravity_skills_guide.md) | Antigravity Skills の仕様・配置・ベストプラクティスまとめ |
 | [`documents/gof_design_patterns_complete_guide.md`](documents/gof_design_patterns_complete_guide.md) | GoF デザインパターン完全ガイド |
 | [`documents/readable_code_complete_guide.md`](documents/readable_code_complete_guide.md) | 『リーダブルコード』全観点まとめ |
+| [`documents/claude_code_headless_remote_mcp_limitation.md`](documents/claude_code_headless_remote_mcp_limitation.md) | Claude Codeのヘッドレス実行(`claude -p`)ではGmail等アカウントレベルのリモートMCPコネクタが使えない制約のまとめ |
 | [`docs/subagent_creator_reference.md`](docs/subagent_creator_reference.md) | `subagent-creator` スキルのリファレンスドキュメント |
 | [`docs/qiita_subagent_creator_draft.md`](docs/qiita_subagent_creator_draft.md) | `subagent-creator` に関する Qiita 記事ドラフト |
 
