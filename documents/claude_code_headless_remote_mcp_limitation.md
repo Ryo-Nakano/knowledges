@@ -13,7 +13,7 @@
 ## 代替アプローチ
 
 - MCPを介さず、対象サービスのREST APIを直接叩く構成にする（OAuthクライアントを作成しリフレッシュトークンを認証情報ファイルとして保存し、ヘッドレススクリプトから直接API呼び出しする）
-- あるいはClaude Desktopアプリの「Scheduled tasks（Routines）」機能を使う（ただしこちらは2026年9月時点でRun nowが動作しない既知の未解決バグがある。[anthropics/claude-code#56480](https://github.com/anthropics/claude-code/issues/56480)）
+- あるいはClaude Desktopアプリの「Scheduled tasks（Routines）」機能を使う（ただしこちらは2026年9月時点でRun nowが動作しない既知の未解決バグがある。[anthropics/claude-code#56480](https://github.com/anthropics/claude-code/issues/56480)。Desktop Local / Cloud Routines双方の既知バグと使い分けの詳細は[claude_code_scheduled_task_limitation.md](claude_code_scheduled_task_limitation.md)を参照）
 
 ## 発見の経緯
 `tasks/doing/20260902-gmail-action-mail-triage`（Gmail定期チェック＆要アクション自動抽出）の実装中、scheduled-tasks方式が上記Issueの不具合で使えず、フォールバックのOSレベルcron+ヘッドレス`claude -p`方式に切り替えた際にこの制約が判明した。詳細な検証過程は同タスクのWORKLOG.md（2026-09-02〜03）を参照。
