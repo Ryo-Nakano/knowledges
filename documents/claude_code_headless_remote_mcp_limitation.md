@@ -13,6 +13,7 @@
 ## 代替アプローチ
 
 - MCPを介さず、対象サービスのREST APIを直接叩く構成にする（OAuthクライアントを作成しリフレッシュトークンを認証情報ファイルとして保存し、ヘッドレススクリプトから直接API呼び出しする）
+- **（2026-10-01追加・推奨）bridge環境のCloud Routineを使う**: `claude rc` を常駐させたマシンでRoutineを実行させると、ローカルのファイルとclaude.aiのGmail等のコネクタを両方使える。実機検証済み。詳細は[claude_code_scheduled_task_limitation.md](claude_code_scheduled_task_limitation.md)の④を参照
 - あるいはClaude Desktopアプリの「Scheduled tasks（Routines）」機能を使う（ただしこちらは2026年9月時点でRun nowが動作しない既知の未解決バグがある。[anthropics/claude-code#56480](https://github.com/anthropics/claude-code/issues/56480)。Desktop Local / Cloud Routines双方の既知バグと使い分けの詳細は[claude_code_scheduled_task_limitation.md](claude_code_scheduled_task_limitation.md)を参照）
 
 ## 発見の経緯
