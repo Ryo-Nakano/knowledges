@@ -107,6 +107,7 @@ Antigravity のカスタムスキル（`SKILL.md`）の新規作成を支援す�
 | [`documents/claude_code_headless_remote_mcp_limitation.md`](documents/claude_code_headless_remote_mcp_limitation.md) | Claude Codeのヘッドレス実行(`claude -p`)ではGmail等アカウントレベルのリモートMCPコネクタが使えない制約のまとめ |
 | [`documents/claude_code_scheduled_task_limitation.md`](documents/claude_code_scheduled_task_limitation.md) | Claude Code純正スケジュール機能(Desktop Local / Cloud Routines)の既知バグと使い分け、OSレベルcron代替の推奨まとめ |
 | [`documents/gboard_word_registration_paste_length_limit.md`](documents/gboard_word_registration_paste_length_limit.md) | Gboard単語登録で文字数上限超えの内容をコピペすると、一覧表示は正常なのに変換候補に出てこなくなる不具合のまとめ |
+| [`documents/gmail_mcp_search_gap_imap_fallback.md`](documents/gmail_mcp_search_gap_imap_fallback.md) | Gmail MCPで特定メールだけ検索から黙って外れる不具合と、IMAP（アプリパスワード）によるフォールバックの手順・実装の要点 |
 | [`docs/subagent_creator_reference.md`](docs/subagent_creator_reference.md) | `subagent-creator` スキルのリファレンスドキュメント |
 | [`docs/qiita_subagent_creator_draft.md`](docs/qiita_subagent_creator_draft.md) | `subagent-creator` に関する Qiita 記事ドラフト |
 
