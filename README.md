@@ -108,6 +108,7 @@ Antigravity のカスタムスキル（`SKILL.md`）の新規作成を支援す�
 | [`documents/claude_code_scheduled_task_limitation.md`](documents/claude_code_scheduled_task_limitation.md) | Claude Code純正スケジュール機能(Desktop Local / Cloud Routines)の既知バグと使い分け、OSレベルcron代替の推奨まとめ |
 | [`documents/gboard_word_registration_paste_length_limit.md`](documents/gboard_word_registration_paste_length_limit.md) | Gboard単語登録で文字数上限超えの内容をコピペすると、一覧表示は正常なのに変換候補に出てこなくなる不具合のまとめ |
 | [`documents/gmail_mcp_search_gap_imap_fallback.md`](documents/gmail_mcp_search_gap_imap_fallback.md) | Gmail MCPで特定メールだけ検索から黙って外れる不具合と、IMAP（アプリパスワード）によるフォールバックの手順・実装の要点 |
+| [`documents/karabiner_elements_bypasses_macos_modifier_key_settings.md`](documents/karabiner_elements_bypasses_macos_modifier_key_settings.md) | Karabiner-Elements導入でmacOS標準の「修飾キー」設定が効かなくなる仕組み（仮想キーボード経由で迂回）と、Simple Modificationsでの設定し直し手順 |
 | [`docs/subagent_creator_reference.md`](docs/subagent_creator_reference.md) | `subagent-creator` スキルのリファレンスドキュメント |
 | [`docs/qiita_subagent_creator_draft.md`](docs/qiita_subagent_creator_draft.md) | `subagent-creator` に関する Qiita 記事ドラフト |
 
